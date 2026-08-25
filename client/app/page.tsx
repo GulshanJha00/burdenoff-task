@@ -1,11 +1,19 @@
+"use client";
+
+import { useState } from "react";
 import { MainPage, Sidebar } from "@/components/barrel";
 
 export default function Home() {
-  return (
-    <div className="grid grid-cols-1 bg-background md:grid-cols-[0.5fr_2.5fr] w-full h-full">
+  const [selectedPage, setSelectedPage] = useState(0);
 
-    <Sidebar/>
-    <MainPage progress={0}/>
-    </div>
+  return (
+    <main className="grid min-h-screen w-full grid-cols-1 md:grid-cols-[240px_1fr]">
+      <Sidebar
+        selectedPage={selectedPage}
+        setSelectedPage={setSelectedPage}
+      />
+
+      <MainPage selectedPage={selectedPage} />
+    </main>
   );
 }

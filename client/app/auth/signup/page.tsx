@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Pacifico } from "next/font/google";
-import { ArrowRight, Lock, Mail, User } from "lucide-react";
+import { ArrowBigLeft, ArrowLeft, ArrowRight, Backpack, Lock, Mail, User } from "lucide-react";
 import Link from "next/link";
 const pacifico = Pacifico({
   weight: "400",
@@ -79,9 +79,16 @@ const SignupPage = () => {
                 </Link>
 
             <div className="mb-6">
-              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-secondary/50">
+                <div className="flex justify-between items-center">
+                    <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-secondary/50">
                 Get started
               </p>
+              <Link href={"/"} className="px-3 py-2 bg-white rounded-sm hover:bg-secondary/80 flex justify-center items-center gap-3 hover:text-background ">
+              <ArrowLeft size={15}></ArrowLeft>
+                Back</Link>
+
+                </div>
+              
 
               <h2 className="text-4xl font-bold text-secondary sm:text-5xl">
                 Create account

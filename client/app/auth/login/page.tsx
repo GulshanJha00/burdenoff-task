@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Pacifico } from "next/font/google";
-import { ArrowRight, Lock, Mail } from "lucide-react";
+import { ArrowLeft, ArrowRight, Lock, Mail } from "lucide-react";
 import Link from "next/link";
 const pacifico = Pacifico({
   weight: "400",
@@ -11,7 +11,7 @@ const pacifico = Pacifico({
 
 const LoginPage = () => {
   return (
-    <main className="h-[100dvh] overflow-hidden bg-[#fff8f5]">
+    <main className="h-[100dvh] overflow-hidden bg-background">
       <div className="grid h-full lg:grid-cols-2">
         {/* Left branding */}
         <section className="relative hidden h-full overflow-hidden bg-secondary lg:flex">
@@ -19,26 +19,30 @@ const LoginPage = () => {
           <div className="absolute -bottom-40 -right-20 h-[500px] w-[500px] rounded-full border-[70px] border-white/5" />
 
           <div className="relative flex h-full flex-col justify-between p-14 xl:p-20">
-             <Link href={"/"}>
-            <div className="flex items-center gap-3">
-              <Image
-                src="/images/favicon.png"
-                width={48}
-                height={48}
-                className="h-12 w-12 object-contain"
-                alt="Habitify logo"
-              />
+            <Link href={"/"}>
+              <div className="flex items-center gap-3">
+                <Image
+                  src="/images/favicon.png"
+                  width={48}
+                  height={48}
+                  className="h-12 w-12 object-contain"
+                  alt="Habitify logo"
+                />
 
-             <h1 className={`${pacifico.className} text-3xl text-white`}>
-                Habitify
-              </h1>
-            </div>
-              </Link>
+                <h1 className={`${pacifico.className} text-3xl text-white`}>
+                  Habitify
+                </h1>
+              </div>
+            </Link>
 
             <div>
+
+
+
               <p className="mb-4 text-sm font-semibold uppercase tracking-[0.3em] text-white/50">
                 Welcome back
               </p>
+
 
               <h2 className="text-6xl font-bold leading-[1.05] text-white xl:text-7xl">
                 Small steps.
@@ -63,25 +67,30 @@ const LoginPage = () => {
           <div className="w-full max-w-md">
             {/* Mobile logo */}
             <Link href={"/"}>
-            <div className="mb-8 flex items-center gap-3 lg:hidden">
-              <Image
-                src="/images/favicon.png"
-                width={40}
-                height={40}
-                className="h-10 w-10 object-contain"
-                alt="Habitify logo"
-              />
-              <h1 className={`${pacifico.className} text-3xl text-secondary`}>
-                Habitify
-              </h1>
-            </div>
-              </Link>
+              <div className="mb-8 flex items-center gap-3 lg:hidden">
+                <Image
+                  src="/images/favicon.png"
+                  width={40}
+                  height={40}
+                  className="h-10 w-10 object-contain"
+                  alt="Habitify logo"
+                />
+                <h1 className={`${pacifico.className} text-3xl text-secondary`}>
+                  Habitify
+                </h1>
+              </div>
+            </Link>
 
 
             <div className="mb-8">
-              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-secondary/50">
-                Welcome back
-              </p>
+              <div className="flex justify-between items-center">
+                <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-secondary/50">
+                  Welcome back
+                </p>
+                <Link href={"/"} className="px-3 py-2 bg-white rounded-sm hover:bg-secondary/80 flex justify-center items-center gap-3 hover:text-background ">
+                  <ArrowLeft size={15}></ArrowLeft>
+                  Back</Link>
+              </div>
 
               <h2 className="text-4xl font-bold text-secondary sm:text-5xl">
                 Login

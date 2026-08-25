@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Pacifico } from "next/font/google";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import NavigationItems from "./NavigationItems";
+import {NavigationItems} from "@/components/barrel";
 
 const pacifico = Pacifico({
   weight: "400",

@@ -9,6 +9,7 @@ import {
   Sun,
   User,
 } from "lucide-react";
+import Link from "next/link";
 
 interface NavigationItemsProps {
   selectedPage: number;
@@ -40,7 +41,7 @@ const NavigationItems = ({
               className={`flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-left transition ${
                 index === selectedPage
                   ? "bg-white text-secondary shadow-sm"
-                  : "hover:bg-red-400"
+                  : "hover:bg-secondary/80 hover:text-background"
               }`}
             >
               {index === 0 ? (
@@ -59,39 +60,41 @@ const NavigationItems = ({
 
       <div className="my-6 h-px bg-gray-200" />
 
-      <div className="space-y-1">
-        <button
-          onClick={closeMenu}
-          className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-left transition hover:bg-red-400"
-        >
-          <Settings size={20} />
-          <span className="font-medium">Settings</span>
-        </button>
-
-        <button
-          onClick={closeMenu}
-          className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-left transition hover:bg-red-400"
-        >
-          <User size={20} />
-          <span className="font-medium">Profile</span>
-        </button>
-
+      <div className="mt-auto space-y-1">
         {isLoggedIn ? (
-          <button
-            onClick={closeMenu}
-            className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-left transition hover:bg-red-400"
-          >
-            <LogOut size={20} />
-            <span className="font-medium">Sign out</span>
-          </button>
+          <>
+            <button
+              onClick={closeMenu}
+              className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-left transition hover:bg-secondary/80 hover:text-background"
+            >
+              <Settings size={20} />
+              <span className="font-medium">Settings</span>
+            </button>
+
+            <button
+              onClick={closeMenu}
+              className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-left transition hover:bg-secondary/80 hover:text-background"
+            >
+              <User size={20} />
+              <span className="font-medium">Profile</span>
+            </button>
+
+            <button
+              onClick={closeMenu}
+              className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-left transition hover:bg-secondary/80 hover:text-background"
+            >
+              <LogOut size={20} />
+              <span className="font-medium">Sign out</span>
+            </button>
+          </>
         ) : (
-          <button
-            onClick={closeMenu}
-            className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-left transition hover:bg-red-400"
+          <Link
+            href="/auth/login"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-3 hover:bg-secondary/80 hover:text-background"
           >
             <LogIn size={20} />
-            <span className="font-medium">Login</span>
-          </button>
+            <span>Login</span>
+          </Link>
         )}
       </div>
     </>

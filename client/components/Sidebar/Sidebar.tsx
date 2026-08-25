@@ -2,17 +2,9 @@
 
 import Image from "next/image";
 import { Pacifico } from "next/font/google";
-import {
-  Calendar,
-  CalendarDays,
-  LogOut,
-  Menu,
-  Settings,
-  Sun,
-  User,
-  X,
-} from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import NavigationItems from "./NavigationItems";
 
 const pacifico = Pacifico({
   weight: "400",
@@ -29,8 +21,7 @@ const Sidebar = ({
   setSelectedPage,
 }: SidebarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const progressItems = ["Daily", "Weekly", "Monthly"];
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const savedPage = localStorage.getItem("selectedPage");
@@ -46,13 +37,12 @@ const Sidebar = ({
 
     window.dispatchEvent(new Event("selectedPageChanged"));
 
-    // Close mobile menu
     setIsMenuOpen(false);
   };
 
   return (
     <>
-      {/* ================= DESKTOP SIDEBAR ================= */}
+      {/* ================= DESKTOP ================= */}
       <aside className="hidden h-full w-full flex-col p-5 md:flex">
         {/* Logo */}
         <div className="flex items-center gap-3">
@@ -69,71 +59,41 @@ const Sidebar = ({
           </h1>
         </div>
 
-        {/* Navigation */}
         <nav className="mt-12 flex flex-1 flex-col">
-          {/* Progress */}
-          <div>
-            <p className="mb-3 px-3 text-base font-bold uppercase tracking-wider text-secondary">
-              Your Progress
-            </p>
-
-            <div className="space-y-1">
-              {progressItems.map((item, index) => (
-                <button
-                  key={item}
-                  onClick={() => updatePage(index)}
-                  className={`flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-left transition ${
-                    index === selectedPage
-                      ? "bg-white text-secondary shadow-sm"
-                      : "hover:bg-red-400"
-                  }`}
-                >
-                  {index === 0 ? (
-                    <Sun size={20} />
-                  ) : index === 1 ? (
-                    <Calendar size={20} />
-                  ) : (
-                    <CalendarDays size={20} />
-                  )}
-
-                  <span className="font-medium">{item}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Bottom navigation */}
-          <div className="mt-auto space-y-1">
-            <button className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-left transition hover:bg-red-400">
-              <Settings size={20} />
-              <span className="font-medium">Settings</span>
-            </button>
-
-            <button className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-left transition hover:bg-red-400">
-              <User size={20} />
-              <span className="font-medium">Profile</span>
-            </button>
-
-            <button className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-left transition hover:bg-red-400">
-              <LogOut size={20} />
-              <span className="font-medium">Sign out</span>
-            </button>
-          </div>
+          <NavigationItems
+            selectedPage={selectedPage}
+            updatePage={updatePage}
+            isLoggedIn={isLoggedIn}
+          />
         </nav>
       </aside>
 
-      {/* ================= MOBILE ================= */}
+      {/* ================= MOBILE NAVBAR ================= */}
+      <header className="fixed left-0 top-0 z-40 flex h-16 w-full items-center border-b bg-white px-4 shadow-sm md:hidden">
+        <button
+          onClick={() => setIsMenuOpen(true)}
+          className="rounded-lg p-2 hover:bg-gray-100"
+          aria-label="Open menu"
+        >
+          <Menu size={24} />
+        </button>
 
-      {/* Hamburger button */}
-      <button
-        onClick={() => setIsMenuOpen(true)}
-        className="fixed left-4 top-4 z-50 rounded-lg bg-white p-3 shadow-md md:hidden"
-        aria-label="Open menu"
-      >
-        <Menu size={24} />
-      </button>
+        <div className="ml-3 flex items-center gap-2">
+          <Image
+            src="/images/favicon.png"
+            width={36}
+            height={36}
+            className="h-9 w-9 object-contain"
+            alt="Habitify logo"
+          />
 
-      {/* Dark overlay */}
+          <h1 className={`${pacifico.className} text-2xl text-secondary`}>
+            Habitify
+          </h1>
+        </div>
+      </header>
+
+      {/* ================= MOBILE OVERLAY ================= */}
       {isMenuOpen && (
         <div
           onClick={() => setIsMenuOpen(false)}
@@ -141,13 +101,13 @@ const Sidebar = ({
         />
       )}
 
-      {/* Mobile menu */}
+      {/* ================= MOBILE MENU ================= */}
       <aside
-        className={`fixed left-0 top-0 z-50 h-full w-72 transform bg-white p-5 shadow-xl transition-transform duration-300 md:hidden ${
+        className={`fixed left-0 top-0 z-50 h-full w-72 bg-white p-5 shadow-xl transition-transform duration-300 md:hidden ${
           isMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {/* Mobile header */}
+        {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Image
@@ -158,9 +118,7 @@ const Sidebar = ({
               alt="Habitify logo"
             />
 
-            <h1
-              className={`${pacifico.className} text-2xl text-secondary`}
-            >
+            <h1 className={`${pacifico.className} text-2xl text-secondary`}>
               Habitify
             </h1>
           </div>
@@ -174,66 +132,13 @@ const Sidebar = ({
           </button>
         </div>
 
-        {/* Mobile navigation */}
-        <nav className="mt-10 flex flex-col">
-          {/* Progress */}
-          <p className="mb-3 px-3 text-sm font-bold uppercase tracking-wider text-secondary">
-            Your Progress
-          </p>
-
-          <div className="space-y-1">
-            {progressItems.map((item, index) => (
-              <button
-                key={item}
-                onClick={() => updatePage(index)}
-                className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left transition ${
-                  index === selectedPage
-                    ? "bg-secondary text-white shadow-sm"
-                    : "hover:bg-red-400"
-                }`}
-              >
-                {index === 0 ? (
-                  <Sun size={20} />
-                ) : index === 1 ? (
-                  <Calendar size={20} />
-                ) : (
-                  <CalendarDays size={20} />
-                )}
-
-                <span className="font-medium">{item}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Divider */}
-          <div className="my-6 h-px bg-gray-200" />
-
-          {/* Other options */}
-          <div className="space-y-1">
-            <button
-              onClick={() => setIsMenuOpen(false)}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left transition hover:bg-red-400"
-            >
-              <Settings size={20} />
-              <span className="font-medium">Settings</span>
-            </button>
-
-            <button
-              onClick={() => setIsMenuOpen(false)}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left transition hover:bg-red-400"
-            >
-              <User size={20} />
-              <span className="font-medium">Profile</span>
-            </button>
-
-            <button
-              onClick={() => setIsMenuOpen(false)}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left transition hover:bg-red-400"
-            >
-              <LogOut size={20} />
-              <span className="font-medium">Sign out</span>
-            </button>
-          </div>
+        <nav className="mt-10">
+          <NavigationItems
+            selectedPage={selectedPage}
+            updatePage={updatePage}
+            isLoggedIn={isLoggedIn}
+            closeMenu={() => setIsMenuOpen(false)}
+          />
         </nav>
       </aside>
     </>

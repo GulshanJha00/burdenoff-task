@@ -5,6 +5,7 @@ import { Pacifico } from "next/font/google";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import {NavigationItems} from "@/components/barrel";
+import { useAuth } from "../context/AuthContext";
 
 const pacifico = Pacifico({
   weight: "400",
@@ -21,7 +22,8 @@ const Sidebar = ({
   setSelectedPage,
 }: SidebarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isLoggedIn } = useAuth();
+
 
   useEffect(() => {
     const savedPage = localStorage.getItem("selectedPage");
@@ -43,7 +45,7 @@ const Sidebar = ({
   return (
     <>
       {/* ================= DESKTOP ================= */}
-      <aside className="hidden h-full w-full flex-col p-5 md:flex">
+      <aside className="hidden border-r-[0.5px] h-full w-full flex-col p-5 md:flex">
         {/* Logo */}
         <div className="flex items-center gap-3">
           <Image

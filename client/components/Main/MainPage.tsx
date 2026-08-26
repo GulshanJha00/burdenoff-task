@@ -1,21 +1,19 @@
+import Daily from "../Progress/Daily";
+import Monthly from "../Progress/Monthly";
+import Weekly from "../Progress/Weekly";
+
 interface MainPageProps {
   selectedPage: number;
 }
 
 const MainPage = ({ selectedPage }: MainPageProps) => {
-  if (selectedPage === 0) {
-    return <h1>Daily Page</h1>;
-  }
+    const pages = [
+        <Daily/>,
+        <Weekly/>,
+        <Monthly/>
+    ]
 
-  if (selectedPage === 1) {
-    return <h1>Weekly Page</h1>;
-  }
-
-  if (selectedPage === 2) {
-    return <h1>Monthly Page</h1>;
-  }
-
-  return null;
+  return pages[selectedPage];
 };
 
 export default MainPage;

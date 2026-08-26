@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import { Flame, Target, Trophy, Plus, X, BookOpen, Droplets, Dumbbell, SquareActivity } from "lucide-react";
 import { quote } from "./quote";
 import { Pacifico } from "next/font/google";
-import AllHabits from "./AllHabits";
-
+import { AllHabits } from "@/components/barrel";
 const pacifico = Pacifico({
     weight: "400",
     subsets: ["latin"],
@@ -121,11 +120,11 @@ const Daily = () => {
                 <div className="mt-8 grid grid-cols-3 gap-2 md:mt-7 md:gap-4">
 
                     {/* Current Streak */}
-                    <div className="flex min-w-0 items-center gap-2 rounded-xl border border-gray-200 p-2 md:gap-4 md:p-5">
+                    <div className="flex min-w-0 items-center gap-2 rounded-xl border border-gray-300 hover:shadow-md shadow-red-500  transition-all duration-200 hover:scale-105 p-2 md:gap-4 md:p-5">
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-orange-50 text-orange-500 md:h-11 md:w-11">
                             <Flame
                                 size={18}
-                                className="md:h-[22px] md:w-[22px]"
+                                className="md:h-5.5 md:w-5.5"
                             />
                         </div>
 
@@ -141,11 +140,11 @@ const Daily = () => {
                     </div>
 
                     {/* Best Streak */}
-                    <div className="flex min-w-0 items-center gap-2 rounded-xl border border-gray-200 p-2 md:gap-4 md:p-5">
+                    <div className="flex min-w-0 items-center gap-2 rounded-xl border border-gray-300 hover:shadow-md shadow-red-500  duration-200 hover:scale-105 transition-all transform p-2 md:gap-4 md:p-5">
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-yellow-50 text-yellow-500 md:h-11 md:w-11">
                             <Trophy
                                 size={18}
-                                className="md:h-[22px] md:w-[22px]"
+                                className="md:h-5.5 md:w-5.5"
                             />
                         </div>
 
@@ -161,11 +160,11 @@ const Daily = () => {
                     </div>
 
                     {/* Today's Progress */}
-                    <div className="flex min-w-0 items-center gap-2 rounded-xl border border-gray-200 p-2 md:gap-4 md:p-5">
+                    <div className="flex min-w-0 items-center gap-2 rounded-xl border border-gray-300 hover:shadow-md shadow-red-500  duration-200 hover:scale-105 transition-all transform p-2 md:gap-4 md:p-5">
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-green-50 text-green-500 md:h-11 md:w-11">
                             <Target
                                 size={18}
-                                className="md:h-[22px] md:w-[22px]"
+                                className="md:h-5.5 md:w-5.5"
                             />
                         </div>
 
@@ -182,7 +181,9 @@ const Daily = () => {
 
                 </div>
 
-                
+                {/* All Habits */}
+
+                <AllHabits/>
 
 
                 {/*  Add Habit Form  */}
@@ -311,7 +312,6 @@ const Daily = () => {
                     </div>
                 )}
 
-                <AllHabits/>
 
             </main>
         </>

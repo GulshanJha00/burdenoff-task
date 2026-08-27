@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Pacifico } from "next/font/google";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import {NavigationItems} from "@/components/barrel";
+import { NavigationItems } from "@/components/barrel";
 import { useAuth } from "../context/AuthContext";
 
 const pacifico = Pacifico({
@@ -22,7 +22,7 @@ const Sidebar = ({
   setSelectedPage,
 }: SidebarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, checkAuth } = useAuth();
 
 
   useEffect(() => {
@@ -34,13 +34,19 @@ const Sidebar = ({
   }, [setSelectedPage]);
 
   const updatePage = (index: number) => {
-    setSelectedPage(index);
-    localStorage.setItem("selectedPage", String(index));
+  setSelectedPage(index);
+  localStorage.setItem("selectedPage", String(index));
 
-    window.dispatchEvent(new Event("selectedPageChanged"));
+  window.dispatchEvent(new Event("selectedPageChanged"));
 
-    setIsMenuOpen(false);
-  };
+  setIsMenuOpen(false);
+};
+
+const closeMenu = () => {
+  setIsMenuOpen(false);
+};
+
+  
 
   return (
     <>
@@ -66,6 +72,8 @@ const Sidebar = ({
             selectedPage={selectedPage}
             updatePage={updatePage}
             isLoggedIn={isLoggedIn}
+            checkAuth={checkAuth}
+            closeMenu={closeMenu}
           />
         </nav>
       </aside>
@@ -105,9 +113,8 @@ const Sidebar = ({
 
       {/* ================= MOBILE MENU ================= */}
       <aside
-        className={`fixed left-0 top-0 z-50 h-full w-72 bg-white p-5 shadow-xl transition-transform duration-300 md:hidden ${
-          isMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed left-0 top-0 z-50 h-full w-72 bg-white p-5 shadow-xl transition-transform duration-300 md:hidden ${isMenuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -136,11 +143,12 @@ const Sidebar = ({
 
         <nav className="mt-10">
           <NavigationItems
-            selectedPage={selectedPage}
-            updatePage={updatePage}
-            isLoggedIn={isLoggedIn}
-            closeMenu={() => setIsMenuOpen(false)}
-          />
+  selectedPage={selectedPage}
+  updatePage={updatePage}
+  isLoggedIn={isLoggedIn}
+  checkAuth={checkAuth}
+  closeMenu={closeMenu}
+/>
         </nav>
       </aside>
     </>

@@ -14,6 +14,13 @@ import Link from "next/link";
 import { useAuth } from "@/components/context/AuthContext";
 import axios from "axios";
 
+interface HabitSummary {
+  currentStreak: number;
+  bestStreak: number;
+  todayProgress: number;
+  completedToday: number;
+  totalHabits: number;
+}
 const Daily = () => {
     const [time, setTime] = useState(new Date());
     const [mounted, setMounted] = useState(false);
@@ -24,7 +31,16 @@ const Daily = () => {
     const [selectedIcon, setSelectedIcon] = useState("");
     const [creatingHabit, setCreatingHabit] = useState(false);
     const [habitsRefreshKey, setHabitsRefreshKey] = useState(0);
-    const { isLoggedIn, user } = useAuth()
+    const { isLoggedIn, user, checkAuth } = useAuth()
+
+    const [summary, setSummary] =
+  useState<HabitSummary>({
+    currentStreak: 0,
+    bestStreak: 0,
+    todayProgress: 0,
+    completedToday: 0,
+    totalHabits: 0,
+  });
 
     const router = useRouter()
 
@@ -41,6 +57,30 @@ const Daily = () => {
 
         return () => clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+  const fetchSummary = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/habits/summary`,
+        {
+          withCredentials: true,
+        }
+      );
+
+      setSummary(response.data);
+    } catch (error) {
+      console.error(
+        "Failed to fetch habit summary:",
+        error
+      );
+    }
+  };
+
+  if (isLoggedIn) {
+    fetchSummary();
+  }
+}, [isLoggedIn, habitsRefreshKey]);
 
     const hour = time.getHours();
 
@@ -205,7 +245,7 @@ const Daily = () => {
 
                         <div className="min-w-0">
                             <p className="text-sm font-bold text-secondary md:text-2xl">
-                                12
+                                {summary.currentStreak}
                             </p>
 
                             <p className="text-[10px] text-gray-500 md:text-sm">
@@ -225,7 +265,7 @@ const Daily = () => {
 
                         <div className="min-w-0">
                             <p className="text-sm font-bold text-secondary md:text-2xl">
-                                24
+                                {summary.bestStreak}
                             </p>
 
                             <p className="text-[10px] text-gray-500 md:text-sm">
@@ -245,7 +285,7 @@ const Daily = () => {
 
                         <div className="min-w-0">
                             <p className="text-sm font-bold text-secondary md:text-2xl">
-                                75%
+                                {summary.todayProgress}%
                             </p>
 
                             <p className="text-[10px] text-gray-500 md:text-sm">
@@ -258,7 +298,27 @@ const Daily = () => {
 
                 {/* All Habits */}
 
-                <AllHabits refreshKey={habitsRefreshKey} />
+                {isLoggedIn ? (
+  <AllHabits refreshKey={habitsRefreshKey} />
+) : (
+  <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-8 text-center">
+    <h2 className="text-xl font-bold text-secondary">
+      Login to view your habits
+    </h2>
+
+    <p className="mt-2 text-sm text-gray-500">
+      Sign in to track your habits and keep your streaks going.
+    </p>
+
+    <Link
+      href="/auth/login"
+      className="mt-5 inline-flex rounded-lg bg-secondary px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+    >
+      Login
+    </Link>
+  </div>
+)}
+
 
 
                 {/*  Add Habit Form  */}

@@ -10,22 +10,45 @@ import {
   User,
 } from "lucide-react";
 import Link from "next/link";
+import axios from "axios";
+
 
 interface NavigationItemsProps {
   selectedPage: number;
   updatePage: (index: number) => void;
   isLoggedIn: boolean;
+  checkAuth: () => void;
   closeMenu?: () => void;
 }
 
-const progressItems = ["Daily", "Weekly", "Monthly"];
+const progressItems = ["Daily", "Pomodoro"];
 
 const NavigationItems = ({
   selectedPage,
   updatePage,
   isLoggedIn,
+  checkAuth,
   closeMenu,
 }: NavigationItemsProps) => {
+
+  const handleLogout = async () => {
+  try {
+    await axios.post(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/logout`,
+      {},
+      {
+        withCredentials: true,
+      }
+    );
+
+    await checkAuth();
+
+    closeMenu?.();
+  } catch (error) {
+    console.error("Logout error:", error);
+  }
+};
+
   return (
     <>
       <div>
@@ -63,24 +86,10 @@ const NavigationItems = ({
       <div className="mt-auto space-y-1">
         {isLoggedIn ? (
           <>
-            <button
-              onClick={closeMenu}
-              className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-left transition hover:bg-secondary/80 hover:text-background"
-            >
-              <Settings size={20} />
-              <span className="font-medium">Settings</span>
-            </button>
 
             <button
-              onClick={closeMenu}
-              className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-left transition hover:bg-secondary/80 hover:text-background"
-            >
-              <User size={20} />
-              <span className="font-medium">Profile</span>
-            </button>
+              onClick={handleLogout}
 
-            <button
-              onClick={closeMenu}
               className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-3 text-left transition hover:bg-secondary/80 hover:text-background"
             >
               <LogOut size={20} />

@@ -274,4 +274,101 @@ const getStreak = async (req, res) => {
   }
 };
 
-module.exports = { createHabit, getHabits, createCheckIn, getTodayCheckIn,deleteHabit, getStreak };
+const getHabitSummary = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    const todayLocalDay = new Intl.DateTimeFormat("en-CA", {
+      timeZone: user.timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date());
+
+    // Get all user's habits
+    const habits = await habitSchema.find({
+      owner: userId,
+    });
+
+    if (habits.length === 0) {
+      return res.status(200).json({
+        currentStreak: 0,
+        bestStreak: 0,
+        todayProgress: 0,
+        completedToday: 0,
+        totalHabits: 0,
+      });
+    }
+
+    let highestCurrentStreak = 0;
+    let highestLongestStreak = 0;
+
+    // Calculate streaks for every habit
+    for (const habit of habits) {
+      const checkIns = await checkInSchema.find({
+        habit: habit._id,
+        user: userId,
+      });
+
+      const days = checkIns.map(
+        (checkIn) => checkIn.localDay
+      );
+
+      const {
+        currentStreak,
+        longestStreak,
+      } = calculateStreaks(
+        days,
+        todayLocalDay
+      );
+
+      highestCurrentStreak = Math.max(
+        highestCurrentStreak,
+        currentStreak
+      );
+
+      highestLongestStreak = Math.max(
+        highestLongestStreak,
+        longestStreak
+      );
+    }
+
+    // Today's completed habits
+    const todayCheckIns = await checkInSchema.countDocuments({
+      user: userId,
+      localDay: todayLocalDay,
+    });
+
+    const todayProgress = Math.round(
+      (todayCheckIns / habits.length) * 100
+    );
+
+    return res.status(200).json({
+      currentStreak: highestCurrentStreak,
+      bestStreak: highestLongestStreak,
+      todayProgress,
+      completedToday: todayCheckIns,
+      totalHabits: habits.length,
+    });
+
+  } catch (error) {
+    console.error(
+      "Get habit summary error:",
+      error
+    );
+
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
+
+module.exports = { createHabit, getHabits, createCheckIn, getTodayCheckIn,deleteHabit, getStreak, getHabitSummary };

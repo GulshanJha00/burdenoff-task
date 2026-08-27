@@ -12,10 +12,12 @@ export const AuthProvider = ({
 }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
+
 
   const checkAuth = async () => {
     try {
-      await axios.get(
+      const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/me`,
         {
           withCredentials: true,
@@ -23,8 +25,11 @@ export const AuthProvider = ({
       );
 
       setIsLoggedIn(true);
+      setUser(response.data.user);
+
     } catch {
       setIsLoggedIn(false);
+        setUser(null);
     } finally {
       setLoading(false);
     }
@@ -41,6 +46,7 @@ export const AuthProvider = ({
         isLoggedIn,
         setIsLoggedIn,
         checkAuth,
+        user,
         loading,
       }}
     >

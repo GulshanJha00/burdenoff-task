@@ -24,7 +24,7 @@ const Daily = () => {
     const [selectedIcon, setSelectedIcon] = useState("");
     const [creatingHabit, setCreatingHabit] = useState(false);
     const [habitsRefreshKey, setHabitsRefreshKey] = useState(0);
-    const { isLoggedIn } = useAuth()
+    const { isLoggedIn, user } = useAuth()
 
     const router = useRouter()
 
@@ -173,7 +173,7 @@ const Daily = () => {
                             <span
                                 className={`${pacifico.className} text-2xl font-bold md:text-4xl`}
                             >
-                                user
+                               {user?.name || "User"}
                             </span>
                         </h1>
 

@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const User = require("../models/auth.model")
+const User = require("../models/auth.model");
 // ==================== REGISTER ====================
 
 const registerUser = async (req, res) => {
@@ -32,12 +32,13 @@ const registerUser = async (req, res) => {
       process.env.JWT_PWD,
       {
         expiresIn: "15d",
-      }
+      },
     );
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+
+      secure: true, // always true on Render (HTTPS)
       sameSite: "none",
       maxAge: 15 * 24 * 60 * 60 * 1000,
     });
@@ -72,10 +73,7 @@ const checkUser = async (req, res) => {
       });
     }
 
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_PWD
-    );
+    const decoded = jwt.verify(token, process.env.JWT_PWD);
 
     const user = await User.findById(decoded.userId);
 
@@ -102,9 +100,6 @@ const checkUser = async (req, res) => {
     });
   }
 };
-
-
-
 
 // ==================== LOGIN AUTH ====================
 
@@ -138,13 +133,14 @@ const loginUser = async (req, res) => {
       process.env.JWT_PWD,
       {
         expiresIn: "15d",
-      }
+      },
     );
 
     // Store token in HTTP-only cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+
+      secure: true, // always true on Render (HTTPS)
       sameSite: "none",
       maxAge: 15 * 24 * 60 * 60 * 1000,
     });
@@ -171,7 +167,8 @@ const logoutUser = async (req, res) => {
   try {
     res.clearCookie("token", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+
+      secure: true, // always true on Render (HTTPS)
       sameSite: "none",
     });
 
@@ -190,5 +187,5 @@ module.exports = {
   registerUser,
   checkUser,
   loginUser,
-  logoutUser
+  logoutUser,
 };

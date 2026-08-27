@@ -1,19 +1,32 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Flame, Target, Trophy, Plus, X, BookOpen, Droplets, Dumbbell, SquareActivity } from "lucide-react";
+import { Flame, Target, Trophy, Plus, X, BookOpen, Droplets, Dumbbell, SquareActivity, LogIn, LockKeyhole } from "lucide-react";
 import { quote } from "./quote";
+import { useRouter } from "next/navigation";
 import { Pacifico } from "next/font/google";
 import { AllHabits } from "@/components/barrel";
 const pacifico = Pacifico({
     weight: "400",
     subsets: ["latin"],
 });
+import Link from "next/link";
+import { useAuth } from "@/components/context/AuthContext";
+import axios from "axios";
 
 const Daily = () => {
     const [time, setTime] = useState(new Date());
     const [mounted, setMounted] = useState(false);
     const [showHabitForm, setShowHabitForm] = useState(false);
+    const [habitName, setHabitName] = useState("");
+    const [habitDescription, setHabitDescription] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const [selectedIcon, setSelectedIcon] = useState("");
+    const [creatingHabit, setCreatingHabit] = useState(false);
+    const [habitsRefreshKey, setHabitsRefreshKey] = useState(0);
+    const { isLoggedIn } = useAuth()
+
+    const router = useRouter()
 
     const today = new Date();
     const day = today.getDate();
@@ -51,11 +64,73 @@ const Daily = () => {
     ];
 
     const icons = [
-        Droplets,
-        BookOpen,
-        Dumbbell,
-        SquareActivity
-    ]
+        { name: "Droplets", component: Droplets },
+        { name: "BookOpen", component: BookOpen },
+        { name: "Dumbbell", component: Dumbbell },
+        { name: "SquareActivity", component: SquareActivity },
+    ];
+
+
+    const handleCreateHabit = async (
+        e: React.FormEvent<HTMLFormElement>
+    ) => {
+        e.preventDefault();
+
+        if (!habitName.trim()) {
+            return;
+        }
+
+        if (!selectedCategory) {
+            return;
+        }
+
+        if (!selectedIcon) {
+            return;
+        }
+
+        try {
+            setCreatingHabit(true);
+
+            const habitData = {
+                name: habitName.trim(),
+                description: habitDescription.trim(),
+                category: selectedCategory,
+                icon: selectedIcon,
+            };
+
+            console.log("Sending habit:", habitData);
+
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/habits/create`,
+                habitData,
+                {
+                    withCredentials: true,
+                }
+            );
+
+            console.log("Habit created:", response.data);
+
+            // Reset form
+            setHabitName("");
+            setHabitDescription("");
+            setSelectedCategory("");
+            setSelectedIcon("");
+
+            setShowHabitForm(false);
+            setHabitsRefreshKey((prev) => prev + 1);
+
+
+        } catch (error: any) {
+            console.error("Create habit error:", error);
+
+            console.log(
+                error.response?.data?.message ||
+                "Failed to create habit"
+            );
+        } finally {
+            setCreatingHabit(false);
+        }
+    };
 
     return (
         <>
@@ -183,134 +258,187 @@ const Daily = () => {
 
                 {/* All Habits */}
 
-                <AllHabits/>
+                <AllHabits refreshKey={habitsRefreshKey} />
 
 
                 {/*  Add Habit Form  */}
 
-                {showHabitForm && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-                        <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-secondary p-5 shadow-2xl md:p-6">
+                {showHabitForm && <>
+                    {isLoggedIn ?
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+                            <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-secondary p-5 shadow-2xl md:p-6">
 
-                            {/* Header */}
-                            <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10">
-                                        <Plus className="text-background" size={20} />
+                                {/* Header */}
+                                <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10">
+                                            <Plus className="text-background" size={20} />
+                                        </div>
+
+                                        <div>
+                                            <h2 className="text-lg font-bold text-background md:text-xl">
+                                                Create New Habit
+                                            </h2>
+
+                                            <p className="text-xs text-white/50">
+                                                Build a habit and make it part of your routine.
+                                            </p>
+                                        </div>
                                     </div>
 
-                                    <div>
-                                        <h2 className="text-lg font-bold text-background md:text-xl">
-                                            Create New Habit
-                                        </h2>
-
-                                        <p className="text-xs text-white/50">
-                                            Build a habit and make it part of your routine.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <button
-                                    type="button"
-                                    onClick={() => setShowHabitForm(false)}
-                                    className="cursor-pointer rounded-lg p-2 text-white/60 transition hover:bg-white/10 hover:text-white"
-                                >
-                                    <X size={20} />
-                                </button>
-                            </div>
-
-                            {/* Form */}
-                            <form className="mt-5 space-y-5">
-
-                                {/* Habit name */}
-                                <div>
-                                    <label className="text-sm font-semibold text-background">
-                                        Habit Name
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        placeholder="e.g. Read for 30 minutes"
-                                        className="mt-2 w-full rounded-lg border border-white/10 bg-white/10 px-4 py-3 text-sm text-white outline-none placeholder:text-white/40 focus:border-white/40"
-                                    />
-                                </div>
-
-                                {/* Description */}
-                                <div>
-                                    <label className="text-sm font-semibold text-background">
-                                        Description
-                                        <span className="ml-1 text-xs font-normal text-white/40">
-                                            (optional)
-                                        </span>
-                                    </label>
-
-                                    <textarea
-                                        placeholder="What do you want to achieve?"
-                                        rows={3}
-                                        className="mt-2 w-full resize-none rounded-lg border border-white/10 bg-white/10 px-4 py-3 text-sm text-white outline-none placeholder:text-white/40 focus:border-white/40"
-                                    />
-                                </div>
-
-                                {/* Category */}
-                                <div>
-                                    <label className="text-sm font-semibold text-background">
-                                        Category
-                                    </label>
-
-                                    <div className="mt-2 grid grid-cols-2 gap-2 md:grid-cols-3">
-                                        {categories.map((val, idx) => (
-                                            <button
-                                                key={idx}
-                                                type="button"
-                                                className="cursor-pointer rounded-lg border border-white/10 bg-white/10 px-3 py-3 text-left text-sm text-white transition hover:border-white/30 hover:bg-white/15"
-                                            >
-                                                {val}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Icon */}
-                                <div>
-                                    <label className="text-sm font-semibold text-background">
-                                        Icon
-                                    </label>
-
-                                    <div className="mt-2 grid grid-cols-6 gap-2 md:grid-cols-8">
-                                        {icons.map((Icon, idx) => (
-                                            <button
-                                                key={idx}
-                                                type="button"
-                                                className="flex aspect-square cursor-pointer items-center justify-center rounded-lg border border-white/10 bg-white/10 text-white transition hover:border-white/30 hover:bg-white/15"
-                                            >
-                                                <Icon size={20} />
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Buttons */}
-                                <div className="flex flex-col-reverse gap-2 border-t border-white/10 pt-5 md:flex-row md:justify-end">
                                     <button
                                         type="button"
                                         onClick={() => setShowHabitForm(false)}
-                                        className="w-full cursor-pointer rounded-lg border border-white/10 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/10 md:w-auto"
+                                        className="cursor-pointer rounded-lg p-2 text-white/60 transition hover:bg-white/10 hover:text-white"
                                     >
-                                        Cancel
-                                    </button>
-
-                                    <button
-                                        type="submit"
-                                        className="w-full cursor-pointer rounded-lg bg-background px-5 py-3 text-sm font-semibold text-secondary transition hover:opacity-90 md:w-auto"
-                                    >
-                                        Add Habit
+                                        <X size={20} />
                                     </button>
                                 </div>
 
-                            </form>
+                                {/* Form */}
+                                <form onSubmit={handleCreateHabit}
+                                    className="mt-5 space-y-5">
+
+                                    {/* Habit name */}
+                                    <div>
+                                        <label className="text-sm font-semibold text-background">
+                                            Habit Name
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. Read for 30 minutes"
+                                            value={habitName}
+                                            onChange={(e) => setHabitName(e.target.value)}
+                                            className="mt-2 w-full rounded-lg border border-white/10 bg-white/10 px-4 py-3 text-sm text-white outline-none placeholder:text-white/40 focus:border-white/40"
+                                        />
+                                    </div>
+
+                                    {/* Description */}
+                                    <div>
+                                        <label className="text-sm font-semibold text-background">
+                                            Description
+                                            <span className="ml-1 text-xs font-normal text-white/40">
+                                                (optional)
+                                            </span>
+                                        </label>
+
+                                        <textarea
+                                            placeholder="What do you want to achieve?"
+                                            rows={3}
+                                            value={habitDescription}
+                                            onChange={(e) => setHabitDescription(e.target.value)}
+                                            className="mt-2 w-full resize-none rounded-lg border border-white/10 bg-white/10 px-4 py-3 text-sm text-white outline-none placeholder:text-white/40 focus:border-white/40"
+                                        />
+                                    </div>
+
+                                    {/* Category */}
+                                    <div>
+                                        <label className="text-sm font-semibold text-background">
+                                            Category
+                                        </label>
+
+                                        <div className="mt-2 grid grid-cols-2 gap-2 md:grid-cols-3">
+                                            {categories.map((val) => (
+                                                <button
+                                                    key={val}
+                                                    type="button"
+                                                    onClick={() => setSelectedCategory(val)}
+                                                    className={`cursor-pointer rounded-lg border px-3 py-3 text-left text-sm text-white transition ${selectedCategory === val
+                                                            ? "border-white/50 bg-white/20"
+                                                            : "border-white/10 bg-white/10 hover:border-white/30 hover:bg-white/15"
+                                                        }`}
+                                                >
+                                                    {val}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Icon */}
+                                    <div>
+                                        <label className="text-sm font-semibold text-background">
+                                            Icon
+                                        </label>
+
+                                        <div className="mt-2 grid grid-cols-6 gap-2 md:grid-cols-8">
+                                            {icons.map(({ name, component: Icon }) => (
+                                                <button
+                                                    key={name}
+                                                    type="button"
+                                                    onClick={() => setSelectedIcon(name)}
+                                                    className={`flex aspect-square cursor-pointer items-center justify-center rounded-lg border text-white transition ${selectedIcon === name
+                                                            ? "border-white/50 bg-white/20"
+                                                            : "border-white/10 bg-white/10 hover:border-white/30 hover:bg-white/15"
+                                                        }`}
+                                                >
+                                                    <Icon size={20} />
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                    </div>
+
+                                    {/* Buttons */}
+                                    <div className="flex flex-col-reverse gap-2 border-t border-white/10 pt-5 md:flex-row md:justify-end">
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowHabitForm(false)}
+                                            className="w-full cursor-pointer rounded-lg border border-white/10 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/10 md:w-auto"
+                                        >
+                                            Cancel
+                                        </button>
+
+                                        <button
+                                            type="submit"
+                                            disabled={creatingHabit}
+                                            className="w-full cursor-pointer rounded-lg bg-background px-5 py-3 text-sm font-semibold text-secondary transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 md:w-auto"
+                                        >
+                                            {creatingHabit ? "Creating..." : "Add Habit"}
+                                        </button>
+                                    </div>
+
+                                </form>
+                            </div>
                         </div>
-                    </div>
-                )}
+                        :
+                        <div onClick={() => setShowHabitForm(false)} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+                            <div onClick={() => router.push("/auth/login")} className="max-h-[90vh] cursor-pointer w-full max-w-lg overflow-y-auto rounded-2xl bg-secondary p-5 shadow-2xl md:p-6">
+
+                                {/* Icon */}
+                                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white/10 text-background">
+                                    <LockKeyhole size={26} />
+                                </div>
+
+                                {/* Text */}
+                                <div className="text-center">
+                                    <h1 className="mt-5 text-2xl font-bold text-background">
+                                        Login to create habits
+                                    </h1>
+
+                                    <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-white/60">
+                                        Sign in to your Habitify account to create habits,
+                                        track your progress, and keep your streaks going.
+                                    </p>
+                                </div>
+
+                                {/* Buttons */}
+                                <div className="mt-6 flex flex-col gap-2 md:flex-row md:justify-center">
+                                    <Link
+                                        href="/auth/login"
+                                        className="flex items-center justify-center gap-2 rounded-lg bg-background px-5 py-3 text-sm font-semibold text-secondary transition hover:opacity-90"
+                                    >
+                                        <LogIn size={17} />
+                                        Login
+                                    </Link>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    }
+                </>}
+
 
 
             </main>

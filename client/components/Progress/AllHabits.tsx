@@ -1,8 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import {
+  Droplets,
+  BookOpen,
+  Dumbbell,
+  SquareActivity,
+} from "lucide-react";
 
-const AllHabits = () => {
+interface Habit {
+  _id: string;
+  name: string;
+  description?: string;
+  category: string;
+  icon: string;
+  createdAt: string;
+}
+
+const AllHabits = ({ refreshKey }: { refreshKey: number }) => {
+
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [habits, setHabits ] = useState<Habit[]>([])
+
   const categories = [
     "All",
     "Health",
@@ -13,7 +33,29 @@ const AllHabits = () => {
     "General",
   ];
 
-  const [selectedCategory, setSelectedCategory] = useState("All");
+useEffect(() => {
+  const refresh = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/habits/get`,
+        {
+          withCredentials: true,
+        }
+      );
+
+      console.log(response.data.habits);
+      setHabits(response.data.habits || []);
+    } catch (error) {
+      console.error("Failed to fetch habits:", error);
+    }
+  };
+
+  refresh();
+}, [refreshKey]);
+
+
+
+
 
   return (
     <section className="mt-8">
@@ -28,11 +70,10 @@ const AllHabits = () => {
               key={category}
               type="button"
               onClick={() => setSelectedCategory(category)}
-              className={`shrink-0 cursor-pointer rounded-lg px-4 py-2 text-xs font-medium transition md:px-5 md:py-2.5 md:text-sm ${
-                isSelected
+              className={`shrink-0 cursor-pointer rounded-lg px-4 py-2 text-xs font-medium transition md:px-5 md:py-2.5 md:text-sm ${isSelected
                   ? "bg-secondary text-white shadow-sm"
                   : "border border-gray-200 bg-white text-gray-500 hover:border-secondary/30 hover:text-secondary"
-              }`}
+                }`}
             >
               {category}
             </button>
@@ -41,48 +82,54 @@ const AllHabits = () => {
       </div>
 
       {/* Habits */}
-      <div className="mt-5 space-y-2">
-        {/* Example habit */}
-        <div className="flex items-center justify-between rounded-xl border border-gray-200 p-4 transition hover:border-secondary/20">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-50">
-              🔥
-            </div>
-
-            <div>
-              <h3 className="text-sm font-semibold text-secondary">
-                Morning Workout
-              </h3>
-
-              <p className="mt-0.5 text-xs text-gray-400">
-                Fitness · Daily
-              </p>
-            </div>
+      
+<div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+  {habits
+    .filter(
+      (habit) =>
+        selectedCategory === "All" ||
+        selectedCategory === habit.category
+    )
+    .map((habit) => (
+      <div
+        key={habit._id}
+        className="group rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+      >
+        {/* Icon */}
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary/60 text-2xl">
+            {habit.icon === "Droplets" && <Droplets/>}
+            {habit.icon === "BookOpen" && <BookOpen/>}
+            {habit.icon === "Dumbbell" && <Dumbbell/>}
+            {habit.icon === "SquareActivity" && <SquareActivity/>}
           </div>
 
-          <div className="h-5 w-5 rounded-full border-2 border-gray-300" />
+          {/* Category */}
+          <span className="rounded-full bg-secondary/10 px-3 py-1 text-xs font-semibold text-secondary">
+            {habit.category}
+          </span>
         </div>
 
-        <div className="flex items-center justify-between rounded-xl border border-gray-200 p-4 transition hover:border-secondary/20">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
-              📖
-            </div>
+        {/* Habit info */}
+        <h2 className="text-lg font-bold text-secondary">
+          {habit.name}
+        </h2>
 
-            <div>
-              <h3 className="text-sm font-semibold text-secondary">
-                Read 20 Pages
-              </h3>
+        <p className="mt-2 min-h-10 text-sm leading-relaxed text-gray-500">
+          {habit.description || "No description"}
+        </p>
 
-              <p className="mt-0.5 text-xs text-gray-400">
-                Learning · Daily
-              </p>
-            </div>
-          </div>
-
-          <div className="h-5 w-5 rounded-full border-2 border-gray-300" />
+        {/* Footer */}
+        <div className="mt-5 border-t border-gray-100 pt-4">
+          <p className="text-xs text-gray-400">
+            Created{" "}
+            {new Date(habit.createdAt).toLocaleDateString()}
+          </p>
         </div>
       </div>
+    ))}
+</div>
+
     </section>
   );
 };

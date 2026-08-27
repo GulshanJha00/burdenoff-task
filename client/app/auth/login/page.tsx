@@ -4,19 +4,75 @@ import Image from "next/image";
 import { Pacifico } from "next/font/google";
 import { ArrowLeft, ArrowRight, Lock, Mail } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import axios, {AxiosError} from "axios";
+import { useRouter } from "next/navigation";
+import { toast, ToastContainer } from "react-toastify";
+import { useAuth } from "@/components/context/AuthContext";
+
 const pacifico = Pacifico({
   weight: "400",
   subsets: ["latin"],
 });
 
 const LoginPage = () => {
+  const router = useRouter();
+
+  const { checkAuth } = useAuth();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [clicked, setClicked] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!email.trim() || !password) {
+      toast.error("Please enter your email and password");
+      return;
+    }
+
+    try {
+      setClicked(true);
+
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
+        {
+          email: email.trim(),
+          password,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+
+
+      toast.success("Login successful!");
+
+      // Update AuthContext
+      await checkAuth();
+
+      router.push("/");
+     }  catch (error) {
+  if (axios.isAxiosError(error)) {
+    toast.error(
+      error.response?.data?.message || "Something went wrong"
+    );
+  } else {
+    toast.error("Something went wrong");
+  }
+} finally {
+  setClicked(false);
+}
+  };
+
   return (
-    <main className="h-[100dvh] overflow-hidden bg-background">
+    <main className="h-dvh overflow-hidden bg-background">
       <div className="grid h-full lg:grid-cols-2">
         {/* Left branding */}
         <section className="relative hidden h-full overflow-hidden bg-secondary lg:flex">
-          <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full border-[60px] border-white/5" />
-          <div className="absolute -bottom-40 -right-20 h-[500px] w-[500px] rounded-full border-[70px] border-white/5" />
+          <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full border-60 border-white/5" />
+          <div className="absolute -bottom-40 -right-20 h-125 w-125 rounded-full border-70 border-white/5" />
 
           <div className="relative flex h-full flex-col justify-between p-14 xl:p-20">
             <Link href={"/"}>
@@ -36,13 +92,9 @@ const LoginPage = () => {
             </Link>
 
             <div>
-
-
-
               <p className="mb-4 text-sm font-semibold uppercase tracking-[0.3em] text-white/50">
                 Welcome back
               </p>
-
 
               <h2 className="text-6xl font-bold leading-[1.05] text-white xl:text-7xl">
                 Small steps.
@@ -75,21 +127,28 @@ const LoginPage = () => {
                   className="h-10 w-10 object-contain"
                   alt="Habitify logo"
                 />
-                <h1 className={`${pacifico.className} text-3xl text-secondary`}>
+
+                <h1
+                  className={`${pacifico.className} text-3xl text-secondary`}
+                >
                   Habitify
                 </h1>
               </div>
             </Link>
 
-
             <div className="mb-8">
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-secondary/50">
                   Welcome back
                 </p>
-                <Link href={"/"} className="px-3 py-2 bg-white rounded-sm hover:bg-secondary/80 flex justify-center items-center gap-3 hover:text-background ">
-                  <ArrowLeft size={15}></ArrowLeft>
-                  Back</Link>
+
+                <Link
+                  href={"/"}
+                  className="flex items-center justify-center gap-3 rounded-sm bg-white px-3 py-2 hover:bg-secondary/80 hover:text-background"
+                >
+                  <ArrowLeft size={15} />
+                  Back
+                </Link>
               </div>
 
               <h2 className="text-4xl font-bold text-secondary sm:text-5xl">
@@ -101,7 +160,8 @@ const LoginPage = () => {
               </p>
             </div>
 
-            <form className="space-y-5">
+            {/* LOGIN FORM */}
+            <form onSubmit={handleLogin} className="space-y-5">
               {/* Email */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-secondary">
@@ -117,6 +177,9 @@ const LoginPage = () => {
                   <input
                     type="email"
                     placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
                     className="w-full rounded-xl border border-gray-200 bg-white py-4 pl-11 pr-4 text-sm outline-none transition placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10"
                   />
                 </div>
@@ -146,20 +209,28 @@ const LoginPage = () => {
                   <input
                     type="password"
                     placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password"
                     className="w-full rounded-xl border border-gray-200 bg-white py-4 pl-11 pr-4 text-sm outline-none transition placeholder:text-gray-400 focus:border-secondary focus:ring-2 focus:ring-secondary/10"
                   />
                 </div>
               </div>
 
+              {/* Submit */}
               <button
                 type="submit"
-                className="group flex w-full items-center justify-center gap-2 rounded-xl bg-secondary py-4 font-semibold text-white transition hover:opacity-90"
+                disabled={clicked}
+                className="group flex w-full items-center justify-center gap-2 rounded-xl bg-secondary py-4 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Login
-                <ArrowRight
-                  size={18}
-                  className="transition-transform group-hover:translate-x-1"
-                />
+                {clicked ? "Logging in..." : "Login"}
+
+                {!clicked && (
+                  <ArrowRight
+                    size={18}
+                    className="transition-transform group-hover:translate-x-1"
+                  />
+                )}
               </button>
             </form>
 
@@ -175,6 +246,15 @@ const LoginPage = () => {
           </div>
         </section>
       </div>
+      <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+          theme="light"
+        />
     </main>
   );
 };
